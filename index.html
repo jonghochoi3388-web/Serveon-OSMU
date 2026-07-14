@@ -35,6 +35,18 @@ textarea,input,select{font-family:inherit;font-size:.92rem;color:var(--ink)}
 .savemenu small{font-size:.72rem;color:var(--dim)}
 
 .maintabs{display:flex;gap:8px;margin:22px 0 12px;flex-wrap:wrap}
+/* --- 파일 드롭존 --- */
+.dropzone{border:2px dashed #b9cdb2;border-radius:12px;background:#f7faf5;padding:20px 18px;text-align:center;
+  cursor:pointer;transition:.15s;display:block;width:100%}
+.dropzone:hover{border-color:#4a7c59;background:#eef4ea}
+.dropzone.drag{border-color:#4a7c59;background:#e4efdd;border-style:solid}
+.dropzone .dz-ic{font-size:26px;line-height:1;margin-bottom:6px}
+.dropzone .dz-t{font-weight:700;font-size:14.5px;color:#24492f}
+.dropzone .dz-s{font-size:12.5px;color:#6f7f6c;margin-top:4px}
+.dropzone .dz-btn{display:inline-block;margin-top:10px;background:#3f6b4e;color:#fff;font-weight:700;
+  font-size:13px;padding:8px 18px;border-radius:8px}
+.dropzone.done{border-style:solid;border-color:#3f6b4e;background:#eef4ea}
+.dropzone.done .dz-t{color:#2e5b3e}
 /* --- 블로그 진단 --- */
 .scorewrap{display:flex;gap:18px;align-items:center;background:#f7faf5;border:1px solid #dde7d8;border-radius:12px;padding:16px 18px}
 .scoreball{width:96px;height:96px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;flex:none}
@@ -205,6 +217,8 @@ textarea,input,select{font-family:inherit;font-size:.92rem;color:var(--ink)}
 footer{padding:26px 0 40px;text-align:center;font-size:.76rem;color:#9BAF9C}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 </head>
 <body>
 
@@ -250,13 +264,15 @@ footer{padding:26px 0 40px;text-align:center;font-size:.76rem;color:#9BAF9C}
   <section class="panel" id="pW">
     <div class="card">
       <h2>✍ 네이버 블로그 직접 작성 / 업로드 <span class="status st-draft" id="wStatus">초안</span></h2>
-      <div class="hint">이미 써둔 글을 붙여넣거나 파일(txt·docx·doc)로 올려, 바로 타 SNS 자동생성으로 넘길 수 있습니다.</div>
+      <div class="hint">이미 써둔 글을 붙여넣거나 파일(PDF·txt·docx·doc)로 올려, 바로 타 SNS 자동생성으로 넘길 수 있습니다.</div>
       <input class="ed-title" id="wTitle" placeholder="블로그 제목">
-      <div class="btnrow" style="margin-bottom:8px">
-        <button class="btn btn-t btn-sm" id="wUploadBtn">📄 파일 업로드 (txt·docx·doc)</button>
-        <input type="file" id="wFile" accept=".txt,.md,.doc,.docx,.html,.htm" hidden>
-        <span class="hint" style="margin:0">업로드하면 본문에 내용이 채워집니다 (제목은 파일명으로 자동 제안)</span>
+      <div class="dropzone" id="wDrop" role="button" tabindex="0" style="margin-bottom:10px">
+        <div class="dz-ic">📄</div>
+        <div class="dz-t">이미 써둔 원고 파일을 올려주세요</div>
+        <div class="dz-s">클릭해서 선택하거나, 파일을 여기로 끌어다 놓으세요 &nbsp;·&nbsp; <b>PDF · TXT · DOCX · DOC · HTML</b><br>업로드하면 본문이 채워지고, 제목은 파일명으로 자동 제안됩니다</div>
+        <span class="dz-btn">파일 선택</span>
       </div>
+      <input type="file" id="wFile" accept=".pdf,.txt,.md,.doc,.docx,.html,.htm" hidden>
       <textarea class="ed-body" id="wBody" placeholder="블로그 본문을 작성하거나 붙여넣으세요."></textarea>
       <div class="counter"><span id="wCount">0</span>자</div>
       <div class="field" style="margin-top:10px"><label>해시태그 (선택 — 쉼표 구분, # 없이)</label><input id="wTags" placeholder="예: 병원동행, 부모님건강, 서울대병원"></div>
@@ -281,12 +297,15 @@ footer{padding:26px 0 40px;text-align:center;font-size:.76rem;color:#9BAF9C}
       <input id="aKw" placeholder="예: 치매검사 종류">
     </div>
 
-    <div class="btnrow" style="margin-bottom:8px">
-      <button class="btn btn-t btn-sm" id="aUploadBtn">📄 파일 업로드 (txt·docx·doc)</button>
-      <input type="file" id="aFile" accept=".txt,.md,.doc,.docx,.html,.htm" hidden>
-      <span class="hint">발행된 본문을 붙여넣거나 파일로 올리세요</span>
+    <div class="dropzone" id="aDrop" role="button" tabindex="0">
+      <div class="dz-ic">📄</div>
+      <div class="dz-t">발행된 블로그 본문 파일을 올려주세요</div>
+      <div class="dz-s">클릭해서 선택하거나, 파일을 여기로 끌어다 놓으세요 &nbsp;·&nbsp; <b>PDF · TXT · DOCX · DOC · HTML</b></div>
+      <span class="dz-btn">파일 선택</span>
     </div>
-    <textarea id="aBody" rows="10" placeholder="발행된 블로그 본문을 붙여넣으세요."></textarea>
+    <input type="file" id="aFile" accept=".pdf,.txt,.md,.doc,.docx,.html,.htm" hidden>
+    <div class="hint" style="margin:8px 0 4px">또는 아래에 본문을 직접 붙여넣으세요.</div>
+    <textarea class="ed-body" id="aBody" rows="10" placeholder="발행된 블로그 본문을 붙여넣으세요."></textarea>
 
     <details style="margin-top:12px;border:1px solid #e3e3e3;border-radius:8px;padding:10px 12px;background:#fcfcfa">
       <summary style="cursor:pointer;font-weight:700;font-size:14px">⚙ 진단 옵션</summary>
@@ -441,11 +460,11 @@ footer{padding:26px 0 40px;text-align:center;font-size:.76rem;color:#9BAF9C}
       <div class="seclabel">📌 블로그 초안 · 핵심 내용 <small>— 글의 설계도(주제·메시지·구성). 게시물에는 포함되지 않는 편집 참고용입니다.</small></div>
       <textarea class="ed-core" id="blogCore"></textarea>
 
-      <div class="seclabel">➕ 핵심 메시지 추가 <small>— 이번 글에 꼭 담을 문장을 직접 쓰거나 파일(txt·docx·doc)로 업로드하세요. 초안 생성/재생성 시 본문에 자동 반영됩니다.</small></div>
+      <div class="seclabel">➕ 핵심 메시지 추가 <small>— 이번 글에 꼭 담을 문장을 직접 쓰거나 파일(PDF·txt·docx·doc)로 업로드하세요. 초안 생성/재생성 시 본문에 자동 반영됩니다.</small></div>
       <textarea class="ed-msg" id="userMsg" placeholder="예: 7월 한 달간 첫 이용 고객께 케어리포트 샘플을 무료로 보내드립니다."></textarea>
       <div class="btnrow" style="margin-top:8px;margin-bottom:4px">
-        <button class="btn btn-t btn-sm" id="msgUploadBtn">📄 파일에서 불러오기 (txt·docx·doc)</button>
-        <input type="file" id="msgFile" accept=".txt,.md,.doc,.docx,.html,.htm" hidden>
+        <button class="btn btn-t btn-sm" id="msgUploadBtn">📄 파일에서 불러오기 (PDF·txt·docx·doc)</button>
+        <input type="file" id="msgFile" accept=".pdf,.txt,.md,.doc,.docx,.html,.htm" hidden>
         <button class="btn btn-s btn-sm" id="msgInsert">↧ 지금 본문에 삽입</button>
         <button class="btn btn-s btn-sm" id="msgClear">지우기</button>
       </div>
@@ -795,9 +814,34 @@ $('#blogTitle').addEventListener('input',e=>{S.blog.title=e.target.value;});
 $('#blogCore').addEventListener('input',e=>{S.blog.core=e.target.value;});
 $('#userMsg').addEventListener('input',e=>{S.userMsg=e.target.value;});
 
-/* ---- ➕ 핵심 메시지: 파일 불러오기(txt·docx·doc) / 삽입 / 지우기 ---- */
+/* ---- ➕ 핵심 메시지: 파일 불러오기(PDF·txt·docx·doc) / 삽입 / 지우기 ---- */
+
+/* PDF → 텍스트 (pdf.js — 브라우저 내 처리, API 미사용)
+   ※ 텍스트 레이어가 있는 PDF만 가능. 스캔본(이미지 PDF)은 추출 불가. */
+async function extractPdf(f){
+  if(typeof pdfjsLib==='undefined')throw new Error('PDF 모듈 로드 실패 — 인터넷 연결을 확인하세요');
+  const doc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
+  const pages=[];
+  for(let i=1;i<=doc.numPages;i++){
+    const items=(await (await doc.getPage(i)).getTextContent()).items;
+    /* y좌표가 바뀌면 줄바꿈 — 문단 구조를 최대한 살린다 */
+    let last=null,line='',out=[];
+    for(const it of items){
+      const y=Math.round(it.transform[5]);
+      if(last!==null&&Math.abs(y-last)>2){out.push(line.trim());line='';}
+      line+=it.str;last=y;
+    }
+    if(line.trim())out.push(line.trim());
+    pages.push(out.filter(Boolean).join('\n'));
+  }
+  const text=pages.join('\n\n').replace(/\n{3,}/g,'\n\n').trim();
+  if(!text)throw new Error('텍스트를 추출하지 못했습니다 — 스캔된 이미지 PDF는 지원하지 않습니다. 본문을 직접 붙여넣어 주세요.');
+  return text;
+}
+
 async function extractTextFromFile(f){
   const name=f.name.toLowerCase();
+  if(name.endsWith('.pdf'))return await extractPdf(f);
   if(name.endsWith('.docx')){
     if(typeof JSZip==='undefined')throw new Error('docx 모듈(JSZip) 로드 실패 — 인터넷 연결을 확인하세요');
     const zip=await JSZip.loadAsync(await f.arrayBuffer());
@@ -1618,17 +1662,40 @@ const AUDIT_DIM = [
   ['link','내부·외부 링크'],['cta','전환 동선(CTA)'],['promo','정보:홍보 비율'],['legal','법적 리스크']
 ];
 
-$('#aUploadBtn').onclick=()=>$('#aFile').click();
-$('#aFile').onchange=async e=>{
-  const f=e.target.files[0];if(!f)return;
-  try{
-    const t=await extractTextFromFile(f);
-    $('#aBody').value=t;
-    if(!$('#aTitle').value.trim())$('#aTitle').value=f.name.replace(/\.[^.]+$/,'');
-    toast('본문을 불러왔습니다');
-  }catch(err){toast('불러오기 실패 — '+err.message);}
-  e.target.value='';
-};
+/* 드롭존 공용 바인딩 — 클릭 / 드래그앤드롭 / 상태 표시 */
+function bindDropzone(zoneId,inputId,onText){
+  const z=$('#'+zoneId), inp=$('#'+inputId);
+  if(!z||!inp)return;
+  const orig=z.innerHTML;
+  const load=async f=>{
+    if(!f)return;
+    z.classList.remove('drag');
+    z.innerHTML=`<div class="dz-ic">⏳</div><div class="dz-t">${f.name} 읽는 중…</div>`;
+    try{
+      const t=await extractTextFromFile(f);
+      onText(t,f);
+      z.classList.add('done');
+      z.innerHTML=`<div class="dz-ic">✅</div><div class="dz-t">${f.name}</div>
+        <div class="dz-s">${t.length.toLocaleString()}자를 불러왔습니다 — 다른 파일을 올리려면 다시 클릭하세요</div>`;
+      toast('본문을 불러왔습니다');
+    }catch(err){
+      z.classList.remove('done');z.innerHTML=orig;
+      toast('불러오기 실패 — '+err.message);
+    }
+  };
+  z.onclick=()=>inp.click();
+  z.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();inp.click();}};
+  inp.onchange=e=>{load(e.target.files[0]);e.target.value='';};
+  ['dragenter','dragover'].forEach(ev=>z.addEventListener(ev,e=>{e.preventDefault();z.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev=>z.addEventListener(ev,e=>{e.preventDefault();z.classList.remove('drag');}));
+  z.addEventListener('drop',e=>load(e.dataTransfer?.files?.[0]));
+}
+
+bindDropzone('aDrop','aFile',(t,f)=>{
+  $('#aBody').value=t;
+  if(!$('#aTitle').value.trim())$('#aTitle').value=f.name.replace(/\.[^.]+$/,'');
+});
+
 $('#aClear').onclick=()=>{
   ['aTitle','aKw','aBody','aNewTitle','aMeta','aNewBody'].forEach(i=>$('#'+i).value='');
   $('#aResult').hidden=true;$('#aBadge').textContent='대기';
@@ -1889,17 +1956,10 @@ $('#kGen').onclick=()=>{
 
 /* ── 작성/업로드 플로우 ── */
 $('#wBody').addEventListener('input',()=>{$('#wCount').textContent=$('#wBody').value.replace(/\s/g,'').length;});
-$('#wUploadBtn').onclick=()=>$('#wFile').click();
-$('#wFile').addEventListener('change',async e=>{
-  const f=e.target.files[0];if(!f)return;
-  try{
-    const text=await extractTextFromFile(f);
-    if(!text)throw new Error('내용이 비어 있습니다');
-    $('#wBody').value=text;$('#wBody').dispatchEvent(new Event('input'));
-    if(!$('#wTitle').value.trim())$('#wTitle').value=f.name.replace(/\.[^.]+$/,'').replace(/[_-]/g,' ');
-    toast('파일을 불러왔습니다 — 제목과 본문을 확인하세요');
-  }catch(err){toast('불러오기 실패 — '+err.message);}
-  e.target.value='';
+bindDropzone('wDrop','wFile',(text,f)=>{
+  if(!text)throw new Error('내용이 비어 있습니다');
+  $('#wBody').value=text;$('#wBody').dispatchEvent(new Event('input'));
+  if(!$('#wTitle').value.trim())$('#wTitle').value=f.name.replace(/\.[^.]+$/,'').replace(/[_-]/g,' ');
 });
 function setWStatus(st){
   const el=$('#wStatus');

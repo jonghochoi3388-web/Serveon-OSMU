@@ -35,6 +35,21 @@ textarea,input,select{font-family:inherit;font-size:.92rem;color:var(--ink)}
 .savemenu small{font-size:.72rem;color:var(--dim)}
 
 .maintabs{display:flex;gap:8px;margin:22px 0 12px;flex-wrap:wrap}
+/* --- 블로그 진단 --- */
+.scorewrap{display:flex;gap:18px;align-items:center;background:#f7faf5;border:1px solid #dde7d8;border-radius:12px;padding:16px 18px}
+.scoreball{width:96px;height:96px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;flex:none}
+.scoreball b{font-size:30px;line-height:1}
+.scoreball small{font-size:11px;opacity:.85}
+.sc-bad{background:#c0392b}.sc-mid{background:#d9a441}.sc-good{background:#3f6b4e}
+.verdict{font-size:14px;line-height:1.6;font-weight:600;color:#24492f}
+.iss{border:1px solid #e3e3e3;border-left-width:5px;border-radius:8px;padding:12px 14px;margin-bottom:10px;background:#fff}
+.iss.crit{border-left-color:#c0392b}.iss.warn{border-left-color:#d9a441}.iss.ok{border-left-color:#3f6b4e}
+.iss .ihead{display:flex;gap:8px;align-items:center;font-weight:700;font-size:14px;margin-bottom:6px}
+.iss .itag{font-size:10px;padding:2px 7px;border-radius:20px;color:#fff;flex:none}
+.iss.crit .itag{background:#c0392b}.iss.warn .itag{background:#d9a441}.iss.ok .itag{background:#3f6b4e}
+.iss .now{font-size:12.5px;color:#777;margin:3px 0}
+.iss .fix{font-size:13px;color:#1e3d28;margin-top:5px}
+.iss .fix b{color:#c0392b}
 .mtab{flex:1;min-width:200px;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:13px 16px;text-align:left;transition:.15s;color:var(--dim)}
 .mtab .mi{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;background:var(--mint);margin-bottom:6px;font-size:.9rem}
 .mtab b{display:block;font-size:.95rem;color:var(--ink)}
@@ -217,6 +232,7 @@ footer{padding:26px 0 40px;text-align:center;font-size:.76rem;color:#9BAF9C}
 <div class="wrap">
   <div class="maintabs" id="maintabs">
     <button class="mtab" data-main="write"><span class="mi">✍</span><b>네이버 블로그 작성/업로드</b><small>직접 쓰거나 파일로 올려 시작</small></button>
+    <button class="mtab" data-main="audit"><span class="mi">🔍</span><b>블로그 진단·개선</b><small>기존 글 SEO 점검 → 재작성</small></button>
     <button class="mtab" data-main="gen"><span class="mi">🤖</span><b>네이버 블로그 자동생성</b><small>제목/키워드 중심 · 톤/유형 중심</small></button>
     <button class="mtab" data-main="sns" disabled><span class="mi">📣</span><b>타 SNS 자동생성</b><small>승인 원고를 채널별로 변환</small></button>
     <button class="mtab" data-main="lib"><span class="mi">📦</span><b>보관함</b><small>보기·복사·다운로드</small></button>
@@ -254,6 +270,69 @@ footer{padding:26px 0 40px;text-align:center;font-size:.76rem;color:#9BAF9C}
   </section>
 
   <!-- 제목/키워드 중심 자동생성 -->
+  <section class="panel" id="pA">
+    <div class="seclabel">🔍 블로그 진단 · 개선 <span class="badge" id="aBadge">대기</span></div>
+    <div class="hint">이미 발행한 글의 URL 또는 본문을 넣으면, 항목별로 SEO를 점검하고 <b>재작성본</b>까지 만들어 편집기로 넘깁니다. AI 모드에서 동작합니다.</div>
+
+    <div class="field" style="margin-top:14px"><label>제목 (발행된 제목 그대로)</label><input id="aTitle" placeholder="예: 신경과 치매검사, 전체 일정 동행이 어려운 보호자"></div>
+
+    <div class="field" style="margin-bottom:10px">
+      <label>메인 키워드 <small>— 이 글로 노리는 검색어 (비우면 AI가 추정)</small></label>
+      <input id="aKw" placeholder="예: 치매검사 종류">
+    </div>
+
+    <div class="btnrow" style="margin-bottom:8px">
+      <button class="btn btn-t btn-sm" id="aUploadBtn">📄 파일 업로드 (txt·docx·doc)</button>
+      <input type="file" id="aFile" accept=".txt,.md,.doc,.docx,.html,.htm" hidden>
+      <span class="hint">발행된 본문을 붙여넣거나 파일로 올리세요</span>
+    </div>
+    <textarea id="aBody" rows="10" placeholder="발행된 블로그 본문을 붙여넣으세요."></textarea>
+
+    <details style="margin-top:12px;border:1px solid #e3e3e3;border-radius:8px;padding:10px 12px;background:#fcfcfa">
+      <summary style="cursor:pointer;font-weight:700;font-size:14px">⚙ 진단 옵션</summary>
+      <div style="margin-top:10px">
+        <div class="kwlabel" style="margin:0 0 8px">이 글의 성격</div>
+        <div class="choices" id="aToneBox">
+          <button class="choice sel" data-v="C"><b>🏛️ 정보형</b>비용·절차·비교 등 정보 전달</button>
+          <button class="choice" data-v="A"><b>💚 감성형</b>동행기·후기 등 이야기</button>
+        </div>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;font-weight:600;margin-top:12px">
+          <input type="checkbox" id="aSearch" checked> 웹 검색으로 <b>경쟁 상위글과 비교</b> 진단 (느리지만 정확)
+        </label>
+      </div>
+    </details>
+
+    <div class="btnrow" style="margin-top:16px">
+      <button class="btn btn-p" id="aRun">🔍 진단 실행</button>
+      <button class="btn btn-t" id="aClear">지우기</button>
+    </div>
+
+    <div id="aResult" hidden style="margin-top:22px">
+      <div class="scorewrap">
+        <div class="scoreball" id="aScoreBall"><b id="aScore">0</b><small>/ 100</small></div>
+        <div style="flex:1">
+          <div class="kwlabel" style="margin:0 0 6px">한 줄 진단</div>
+          <div id="aVerdict" class="verdict"></div>
+        </div>
+      </div>
+
+      <div class="seclabel" style="margin-top:20px">📋 항목별 진단</div>
+      <div id="aIssues"></div>
+
+      <div class="seclabel" style="margin-top:20px">✍ 재작성본</div>
+      <div class="hint" style="margin-bottom:8px">아래 개선안을 편집기로 보내면 기존 승인·변환 흐름(타 SNS 자동생성)을 그대로 탈 수 있습니다.</div>
+      <div class="field"><label>개선된 제목</label><input id="aNewTitle"></div>
+      <div class="field" style="margin-top:8px"><label>메타 디스크립션 (검색 설명)</label><input id="aMeta"></div>
+      <div class="field" style="margin-top:8px"><label>개선된 본문</label><textarea id="aNewBody" rows="14"></textarea></div>
+
+      <div class="btnrow" style="margin-top:14px">
+        <button class="btn btn-p" id="aToEditor">✍ 이 개선안을 편집기로 보내기 →</button>
+        <button class="btn btn-t btn-sm" id="aCopy">📋 복사</button>
+        <button class="btn btn-t btn-sm" id="aTxt">⬇ TXT</button>
+      </div>
+    </div>
+  </section>
+
   <section class="panel" id="pK">
     <div class="card">
       <h2>🔑 제목/키워드 중심 자동생성</h2>
@@ -1526,8 +1605,189 @@ function download(name,content){const b=new Blob([content],{type:'application/oc
 function today(){const d=new Date();return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2600);}
 
+/* ==========================================================
+ * 🔍 블로그 진단 · 개선 탭 (v3.3)
+ * 2패스: ① 진단(JSON) → ② 재작성(순수 텍스트)
+ *   진단과 재작성을 한 번에 시키면 재작성이 '체크리스트 응답'이 되어 납작해진다.
+ * ========================================================== */
+
+const AUDIT_DIM = [
+  ['title','제목'],['meta','메타 디스크립션'],['slug','URL 슬러그'],['heading','제목 태그 위계(H2/H3)'],
+  ['intent','검색 의도 대응'],['keyword','키워드 배치'],['depth','정보 깊이·분량'],
+  ['image','이미지 alt·텍스트'],['schema','구조화 데이터'],['eeat','신뢰도(E-E-A-T)'],
+  ['link','내부·외부 링크'],['cta','전환 동선(CTA)'],['promo','정보:홍보 비율'],['legal','법적 리스크']
+];
+
+$('#aUploadBtn').onclick=()=>$('#aFile').click();
+$('#aFile').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const t=await extractTextFromFile(f);
+    $('#aBody').value=t;
+    if(!$('#aTitle').value.trim())$('#aTitle').value=f.name.replace(/\.[^.]+$/,'');
+    toast('본문을 불러왔습니다');
+  }catch(err){toast('불러오기 실패 — '+err.message);}
+  e.target.value='';
+};
+$('#aClear').onclick=()=>{
+  ['aTitle','aKw','aBody','aNewTitle','aMeta','aNewBody'].forEach(i=>$('#'+i).value='');
+  $('#aResult').hidden=true;$('#aBadge').textContent='대기';
+};
+$$('#aToneBox .choice').forEach(b=>b.onclick=()=>{
+  $$('#aToneBox .choice').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');
+});
+
+$('#aRun').onclick=async()=>{
+  const title=$('#aTitle').value.trim(), body=$('#aBody').value.trim();
+  if(!body){toast('진단할 본문을 넣어주세요');return;}
+  if(!AI.on){toast('진단은 AI 모드에서 동작합니다 — 상단 「AI 모드」를 켜주세요');return;}
+  const tone=$('#aToneBox .sel')?.dataset.v||'C';
+  const emo=(tone==='A');
+  const useSearch=$('#aSearch').checked;
+  const kw=$('#aKw').value.trim();
+  const btn=$('#aRun');busy(btn,true,'진단 중… (1/2)');
+  $('#aBadge').textContent='진단 중';
+
+  try{
+    /* ── 1패스: 진단 ─────────────────────────────── */
+    const p1=`너는 한국 의료·돌봄 분야 블로그의 SEO 감사관이다. 아래 '발행된 글'을 냉정하게 진단하라.
+칭찬은 금지다. 고칠 수 있는 것만 말하라.
+
+${useSearch?`먼저 웹 검색으로 "${kw||title}" 관련 상위 노출 글을 조사해, 이 글이 경쟁 글 대비 무엇이 부족한지 비교하라.\n`:''}
+[발행된 제목] ${title||'(없음)'}
+[노리는 메인 키워드] ${kw||'(미지정 — 본문에서 추정하라)'}
+[글의 성격] ${emo?'감성형(동행기·후기)':'정보형(비용·절차·비교)'}
+[발행된 본문]
+${body.slice(0,6000)}
+
+진단 기준(각 항목을 반드시 판정):
+${AUDIT_DIM.map(d=>'- '+d[1]).join('\n')}
+
+판정 규칙:
+- 제목이 '검색되는 말'이 아니라 '상황 설명'이면 crit. 검색 수요가 0인 제목은 나머지 최적화를 무의미하게 만든다.
+- 핵심 정보가 이미지 안에만 있으면 crit (크롤러가 못 읽는다).
+- FAQ가 본문에 있는데 FAQPage 스키마가 없으면 warn (리치 결과 기회 상실).
+- 의료(치매·암 등) 주제인데 출처·작성자·수정일이 없으면 crit (YMYL).
+- 본문에 요금·전화번호가 반복되거나 서비스 자랑 비중이 40%를 넘으면 warn.
+- 후기인데 실제 사례 근거·대가 표기가 없으면 legal을 crit (표시광고법).
+- 잘 되어 있으면 솔직하게 ok로 판정하라. 억지로 문제를 만들지 마라.
+
+아래 JSON만 출력하라(마크다운 펜스 금지):
+{"score":0~100 정수,
+ "verdict":"이 글의 가장 큰 문제 한 문장 + 고치면 무엇이 달라지는지 한 문장",
+ "realKeyword":"이 글이 실제로 노려야 할 검색 키워드",
+ "issues":[{"dim":"제목","level":"crit|warn|ok","now":"현재 상태를 사실대로 한 줄","fix":"구체적으로 무엇을 어떻게 바꿀지 (예시 포함)"}],
+ "newTitles":["개선 제목 후보 3개"],
+ "meta":"메타 디스크립션 80~120자",
+ "slug":"영문 URL 슬러그"}`;
+    const j=parseAiJson(await callClaude(p1,useSearch));
+
+    /* ── 2패스: 재작성 (순수 텍스트) ──────────────── */
+    busy(btn,true,'재작성 중… (2/2)');
+    const p2=`아래는 발행된 블로그 글과 그에 대한 SEO 진단 결과다.
+진단에서 지적된 문제를 **전부 반영한 개선 본문**을 다시 써라.
+
+[개선 제목] ${j.newTitles?.[0]||title}
+[실제 노려야 할 키워드] ${j.realKeyword||kw}
+[진단 요약] ${j.verdict||''}
+[반드시 고쳐야 할 것]
+${(j.issues||[]).filter(i=>i.level!=='ok').map(i=>`- [${i.dim}] ${i.fix}`).join('\n')}
+
+[원문]
+${body.slice(0,6000)}
+
+작성 규칙:
+- 원문의 살릴 만한 내용(표·구체적 정보·실제 사례)은 유지하되, 구조와 문장은 새로 써라.
+- 검색해서 들어온 사람이 원하는 답을 앞에 배치하라.
+- 확인되지 않은 수치(비용·소요시간)는 지어내지 말고 "[병원·기관 확인 필요]"로 표시하라.
+- 요금·전화번호는 본문에 넣지 마라. CTA 블록은 시스템이 따로 붙인다.
+- 완치·보장·효능 단정 표현 금지.
+본문만 출력하라. 해설·머리말 금지.`;
+    let nb=(await callClaude(p2,false,{system:emo?SYS_EMOTIONAL:SYS_INFO,temperature:1.0})).trim();
+    if(emo){
+      const r3=await callClaude(null,false,{system:SYS_EMOTIONAL,temperature:1.0,
+        messages:[{role:'user',content:p2},{role:'assistant',content:nb},{role:'user',content:CRITIQUE_EMO}]});
+      nb=stripCritique(r3);
+    }
+    nb=nb+ctaBlock();
+
+    /* ── 렌더 ─────────────────────────────────────── */
+    const sc=Math.max(0,Math.min(100,+j.score||0));
+    $('#aScore').textContent=sc;
+    const ball=$('#aScoreBall');ball.className='scoreball '+(sc<50?'sc-bad':sc<75?'sc-mid':'sc-good');
+    $('#aVerdict').textContent=j.verdict||'';
+    const LV={crit:'치명적',warn:'개선 필요',ok:'양호'};
+    $('#aIssues').innerHTML=(j.issues||[]).map(i=>{
+      const lv=['crit','warn','ok'].includes(i.level)?i.level:'warn';
+      return `<div class="iss ${lv}">
+        <div class="ihead"><span class="itag">${LV[lv]}</span>${i.dim||''}</div>
+        <div class="now">현재: ${i.now||'-'}</div>
+        <div class="fix">→ ${i.fix||'-'}</div>
+      </div>`;
+    }).join('');
+    $('#aNewTitle').value=j.newTitles?.[0]||title;
+    $('#aMeta').value=j.meta||'';
+    $('#aNewBody').value=nb;
+    $('#aResult').hidden=false;
+    $('#aBadge').textContent=sc+'점';
+    A_LAST={j,tone,body:nb};
+    toast(`진단 완료 — ${sc}점 · 치명적 ${(j.issues||[]).filter(i=>i.level==='crit').length}건`);
+  }catch(err){toast('진단 실패 — '+err.message);$('#aBadge').textContent='실패';}
+  busy(btn,false);
+};
+
+let A_LAST=null;
+
+$('#aToEditor').onclick=()=>{
+  const t=$('#aNewTitle').value.trim(), b=$('#aNewBody').value.trim();
+  if(!b){toast('개선 본문이 비어 있습니다');return;}
+  const j=A_LAST?.j||{}, tone=A_LAST?.tone||'C', emo=(tone==='A');
+  S.origin='write';S.source='블로그 진단·개선';
+  S.tones=[tone];S.tone=tone;S.types=[emo?'diary':'info'];S.type=emo?'diary':'info';
+  S.kw={main:[j.realKeyword||$('#aKw').value.trim()||t].filter(Boolean),sub:[],long:[]};
+  S.blog.title=t;S.blog.body=b;
+  S.blog.core=`[핵심 내용 — 기존 글 진단·개선]
+· 진단 점수: ${j.score??'-'} / 100
+· 한 줄 진단: ${j.verdict||'-'}
+· 실제 노려야 할 키워드: ${j.realKeyword||'-'}
+· 메타 디스크립션: ${$('#aMeta').value.trim()||'-'}
+· 권장 URL 슬러그: ${j.slug||'-'}
+· 치명적 이슈: ${(j.issues||[]).filter(i=>i.level==='crit').map(i=>i.dim).join(', ')||'없음'}
+· 필수 확인: [병원·기관 확인 필요] 표시 부분의 수치를 채우고, 요금·연락처 사실관계 검토 후 게시`;
+  renderKw();
+  $('#blogTitle').value=t;$('#blogCore').value=S.blog.core;$('#blogBody').value=b;
+  updateBlogMeta();setBlogStatus('draft');
+  setMain('gen');S.nav.stage='edit';setGsub('tone');
+  toast('편집기로 보냈습니다 — 검수 후 승인하면 타 SNS 변환으로 넘어갑니다');
+};
+$('#aCopy').onclick=()=>{
+  copy(`${$('#aNewTitle').value}\n\n[메타] ${$('#aMeta').value}\n\n${$('#aNewBody').value}`);
+  toast('복사했습니다');
+};
+$('#aTxt').onclick=()=>{
+  const j=A_LAST?.j||{};
+  const txt=`[블로그 진단 리포트] ${today()}
+점수: ${j.score??'-'}/100
+진단: ${j.verdict||'-'}
+실제 키워드: ${j.realKeyword||'-'}
+슬러그: ${j.slug||'-'}
+
+■ 항목별 진단
+${(j.issues||[]).map(i=>`[${i.level}] ${i.dim}\n  현재: ${i.now}\n  개선: ${i.fix}`).join('\n')}
+
+■ 개선 제목
+${$('#aNewTitle').value}
+
+■ 메타 디스크립션
+${$('#aMeta').value}
+
+■ 개선 본문
+${$('#aNewBody').value}`;
+  download(`서브온_블로그진단_${today()}.txt`,txt);
+};
+
 /* ---------------- 네비게이션 (3+1 메인탭) ---------------- */
-const PANELS=['pW','pK','p1','p2','p3','p4','p5','p6'];
+const PANELS=['pW','pA','pK','p1','p2','p3','p4','p5','p6'];
 function showPanel(id){
   PANELS.forEach(p=>$('#'+p).classList.remove('on'));
   $('#'+id).classList.add('on');
@@ -1538,6 +1798,7 @@ function setMain(main){
   $$('#maintabs .mtab').forEach(b=>b.classList.toggle('active',b.dataset.main===main));
   $('#gsubbar').hidden=(main!=='gen');
   if(main==='write')showPanel('pW');
+  else if(main==='audit')showPanel('pA');
   else if(main==='gen')setGsub(S.nav.gsub||'tone');
   else if(main==='sns'){updateSnsSource();showPanel(Object.keys(S.converted).length&&S.nav.stage==='result'?'p5':'p4');}
   else if(main==='lib')showPanel('p6');
